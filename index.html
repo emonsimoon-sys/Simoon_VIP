@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amar Club - Signal Bot</title>
+    
+    <!-- ===== সিএসএস ডিজাইন (স্টাইল) ===== -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4; /* ব্যাকগ্রাউন্ড কালার */
+            font-family: Arial, sans-serif;
+        }
+
+        /* ফ্লোটিং গোল্ডেন বাটন */
+        #rexBtn {
+            position: fixed; bottom: 100px; left: 15px;
+            background: #111; border: 2px solid #d4af37; border-radius: 50%;
+            width: 70px; height: 70px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; cursor: pointer; z-index: 9999;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        #rexBtn span { color: #d4af37; font-size: 10px; font-weight: bold; margin-top: 2px; }
+
+        /* সিগন্যাল প্যানেলের ডিজাইন */
+        #rexPanel {
+            position: fixed; top: 30%; left: 50%; transform: translate(-50%, -30%);
+            width: 90%; max-width: 350px; background: #16171d;
+            border: 1px solid #333; border-radius: 15px; z-index: 10000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: none;
+            overflow: hidden;
+        }
+
+        /* হেডার */
+        .rex-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 15px; border-bottom: 1px solid #333;
+        }
+        .rex-logo-area { display: flex; align-items: center; gap: 10px; }
+        .rex-logo-area h3 { color: #d4af37; margin: 0; font-size: 14px; letter-spacing: 1px; }
+        .rex-logo-area p { color: #888; margin: 0; font-size: 10px; }
+        .rex-controls button {
+            background: #222; color: #fff; border: 1px solid #444;
+            border-radius: 5px; width: 25px; height: 25px; cursor: pointer; margin-left: 5px;
+        }
+
+        /* বডি */
+        .rex-body { padding: 15px; }
+        .rex-image-box {
+            border: 2px solid #d4af37; border-radius: 10px; padding: 20px;
+            text-align: center; background: linear-gradient(180deg, #1a1b26 0%, #0d0d12 100%);
+            box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.2); margin-bottom: 15px;
+        }
+        .rex-signal-box {
+            border: 1px solid #444; border-radius: 10px; padding: 15px;
+            text-align: center; background: #0d0d12;
+        }
+        .rex-signal-box h4 { color: #d4af37; margin: 0 0 5px 0; font-size: 13px; }
+        .rex-signal-box p { color: #aaa; margin: 5px 0; font-size: 13px; }
+        .rex-signal-box h1 {
+            color: #2ecc71; font-size: 40px; margin: 10px 0 0 0;
+            text-shadow: 0 0 10px rgba(46, 204, 113, 0.5); letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== এইচটিএমএল (যা স্ক্রিনে দেখা যাবে) ===== -->
+    <h2 style="text-align: center; margin-top: 50px; color: #333;">আমার ক্লাব ওয়েবসাইট</h2>
+
+    <!-- ফ্লোটিং বাটন -->
+    <div id="rexBtn" onclick="toggleRexPanel()">
+        <img src="https://cdn-icons-png.flaticon.com/512/9356/9356260.png" alt="REX" style="width:35px; height:35px;">
+        <span>REX VIP</span>
+    </div>
+
+    <!-- সিগন্যাল প্যানেল -->
+    <div id="rexPanel">
+        <div class="rex-header">
+            <div class="rex-logo-area">
+                <img src="https://cdn-icons-png.flaticon.com/512/9356/9356260.png" style="width:30px; height:30px; filter: sepia(1) hue-rotate(5deg) saturate(3);">
+                <div>
+                    <h3>Simoon Bhai </h3>
+                    <p>VIP SIGNAL PANEL</p>
+                </div>
+            </div>
+            <div class="rex-controls">
+                <button onclick="toggleRexPanel()">✖</button>
+            </div>
+        </div>
+
+        <div class="rex-body">
+            <div class="rex-image-box">
+                <img src="https://cdn-icons-png.flaticon.com/512/9356/9356260.png" style="width:80px;">
+            </div>
+            <div class="rex-signal-box">
+                <h4>REX VIP OFFICIAL SIGNAL</h4>
+                <p id="rexTime">00:00:00 PM</p>
+                <p id="rexCountdown" style="color: #f1c40f; font-size: 18px;">7s</p>
+                <h1 id="rexResult">SMALL</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== জাভাস্ক্রিপ্ট (বটের লজিক) ===== -->
+    <script>
+        let rexTimer;
+        let rexIsOpen = false;
+
+        // প্যানেল ওপেন/ক্লোজ করার ফাংশন
+        function toggleRexPanel() {
+            const panel = document.getElementById('rexPanel');
+            rexIsOpen = !rexIsOpen;
+            panel.style.display = rexIsOpen ? 'block' : 'none';
+            if(rexIsOpen) startRexSignal();
+        }
+
+        // ফেক সিগন্যাল জেনারেট করার ফাংশন
+        function startRexSignal() {
+            clearInterval(rexTimer);
+            let countdown = 7;
+            
+            const timeEl = document.getElementById('rexTime');
+            const countEl = document.getElementById('rexCountdown');
+            const resultEl = document.getElementById('rexResult');
+
+            // বর্তমান সময় দেখানো
+            const now = new Date();
+            timeEl.innerText = now.toLocaleTimeString('en-US', { hour12: true });
+
+            // র‍্যান্ডম Big বা Small সিলেক্ট করা (Math.random দিয়ে)
+            const isBig = Math.random() > 0.5;
+            resultEl.innerText = isBig ? "BIG" : "SMALL";
+            
+            // কালার পরিবর্তন (Big হলে কমলা, Small হলে সবুজ)
+            resultEl.style.color = isBig ? "#f39c12" : "#2ecc71"; 
+            resultEl.style.textShadow = isBig ? "0 0 10px rgba(243, 156, 18, 0.5)" : "0 0 10px rgba(46, 204, 113, 0.5)";
+
+            // কাউন্টডাউন টাইমার (৭ থেকে ০)
+            countEl.innerText = countdown + "s";
+            rexTimer = setInterval(() => {
+                countdown--;
+                countEl.innerText = countdown + "s";
+                if (countdown <= 0) {
+                    clearInterval(rexTimer);
+                    if(rexIsOpen) startRexSignal(); // আবার নতুন সিগন্যাল শুরু
+                }
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>
